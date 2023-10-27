@@ -102,14 +102,23 @@ app.get('/edit/:id', async (요청, 응답) => {
 app.put('/edit', async (요청, 응답)=>{
     // updateOne은 객체의 키값이 찾으려는 값
     // set은 그 찾은 객체의 데이터를 수정할 값
-    await db.collection('post').updateMany({ _id : 1 },
-            {$inc : { like : 2}
+
+    // await db.collection('post').updateMany({ _id : 1 },
+    //         {$inc : { like : 2}
+    //     })
+
+
+        await db.collection('post').updateOne({ _id : new ObjectId(요청.body.id) },
+            {$set : { title : 요청.body.title, content : 요청.body.content }
         })
-
-
-    // await db.collection('post').updateOne({ _id : new ObjectId(요청.body.id) },
-    //     {$set : { title : 요청.body.title, content : 요청.body.content }
-    // })
-    // console.log(요청.body.content)
-    // 응답.redirect('/list');
+        console.log(요청.body.content)
+        응답.redirect('/list');
     }) 
+
+app.delete('/delete', async (요청, 응답)=>{
+    console.log(요청.query);
+    db.collection('post').deleteOne({ _id : new ObjectId(요청.query.docid)})
+    // ajax를 쓰는 이유 새로고침이 안되고 바로 데이터를 요청, 응답할 수 있기때문에 
+    // 응답.render, redierct 같은 거 안씀
+    응답.send('삭제완료')
+})

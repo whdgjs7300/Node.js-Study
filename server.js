@@ -1,6 +1,10 @@
 const express = require('express')
 const app = express()
+const { MongoClient, ObjectId } = require('mongodb');
+const methodOverride = require('method-override')
 
+
+app.use(methodOverride('_method'))
 // 서버에도 css 파일 등록해야함
 app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs') 
@@ -8,7 +12,7 @@ app.set('view engine', 'ejs')
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
-const { MongoClient, ObjectId } = require('mongodb')
+
 
 let db;
 const url = 'mongodb+srv://whdgjs7300:qwer1234@cluster0.ef3bhk8.mongodb.net/?retryWrites=true&w=majority'
@@ -86,17 +90,26 @@ app.get('/detail/:id', async (요청, 응답)=>{
 
 // 수정 기능
 
-app.get('/edit/:id', async(요청, 응답)=> {
+
+app.get('/edit/:id', async (요청, 응답) => {
+    let result = await db.collection('post').findOne({ _id : new ObjectId(요청.params.id) })
+    응답.render('edit.ejs', { result : result})
     
-    let result = await db.collection('post').findOne({ _id : new ObjectId(요청.params.id)})
-    응답.render('edit.ejs', {result : result})
     console.log(result)
 })
 
 
-app.post('/edit', async (요청, 응답)=>{
-    await db.collection('post').updateOne({ _id : new ObjectId(요청.body.id) },
-        {$set : { title : 요청.body.title, content : 요청.body.content }
+app.put('/edit', async (요청, 응답)=>{
+    // updateOne은 객체의 키값이 찾으려는 값
+    // set은 그 찾은 객체의 데이터를 수정할 값
+    await db.collection('post').updateMany({ _id : 1 },
+            {$inc : { like : 2}
         })
-        응답.redirect('/list')
+
+
+    // await db.collection('post').updateOne({ _id : new ObjectId(요청.body.id) },
+    //     {$set : { title : 요청.body.title, content : 요청.body.content }
+    // })
+    // console.log(요청.body.content)
+    // 응답.redirect('/list');
     }) 

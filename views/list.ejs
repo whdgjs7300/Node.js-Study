@@ -27,13 +27,21 @@
 
 
     <script>
-        document.querySelectorAll('.delete')[0].addEventListener('click', (e)=>{
+        for (let i = 0; i < '<%= 글목록.length %>'; i++) {
+            document.querySelectorAll('.delete')[i].addEventListener('click', (e)=>{
             // e.target.dataset.id < HTML에서 데이터 저장
             fetch('/delete?docid=' + e.target.dataset.id, {
                 method : 'DELETE',
-                body : JSON.stringify({})
+            })
+            .then((r)=>r.text())
+            .then((r)=>{
+                e.target.parentElement.parentElement.style.display = 'none'
             })
         })
+        }
+        
+        
+
     </script>
 </body>
 </html>

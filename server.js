@@ -122,3 +122,17 @@ app.delete('/delete', async (요청, 응답)=>{
     // 응답.render, redierct 같은 거 안씀
     응답.send('삭제완료')
 })
+
+app.get('/list/:id', async (요청, 응답) => {
+    // db 에서 데이터 가져오는 문법 (limit 데이터의 갯수 정하기 {페이지네이션구현})
+    let result = await db.collection('post').find().skip((요청.params.id - 1) * 5).limit(5).toArray()
+    응답.render('list.ejs', { 글목록 : result});
+
+}) 
+
+app.get('/list/next/:id', async (요청, 응답) => {
+    // db 에서 데이터 가져오는 문법 (limit 데이터의 갯수 정하기 {페이지네이션구현})
+    let result = await db.collection('post').find({_id : {$gt : new ObjectId(요청.params.id)}}).skip((요청.params.id - 1) * 5).limit(5).toArray()
+    응답.render('list.ejs', { 글목록 : result});
+
+}) 

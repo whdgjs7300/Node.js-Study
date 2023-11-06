@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const { MongoClient, ObjectId } = require('mongodb');
 const methodOverride = require('method-override')
-
+const bcrypt = require('bcrypt')
 
 app.use(methodOverride('_method'))
 // 서버에도 css 파일 등록해야함
@@ -16,6 +16,8 @@ app.use(express.urlencoded({extended:true}))
 const session = require('express-session')
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
+const MongoStore = require('connect-mongo')
+
 
 app.use(passport.initialize())
 app.use(session({
@@ -23,7 +25,11 @@ app.use(session({
     resave : false,
     saveUninitialized : false,
     // cookie는 세션에 저장된 시간을 정할 수 있음
-    cookie : {maxAge : 60 * 60 * 1000}
+    cookie : {maxAge : 60 * 60 * 1000},
+    store : MongoStore.create({
+        mongoUrl : 'mongodb+srv://whdgjs7300:qwer1234@cluster0.ef3bhk8.mongodb.net/?retryWrites=true&w=majority',
+        dbName : 'forum'
+    })
 }))
 
 app.use(passport.session()) 
@@ -161,12 +167,14 @@ passport.use(new LocalStrategy(async (입력한아이디, 입력한비번, cb) =
     if (!result) {
         return cb(null, false, { message: '아이디 DB에 없음' })
         }
-        if (result.password == 입력한비번) {
+        // 비밀번호 해싱 비교해야함 !
+        if (await bcrypt.compare(입력한비번, result.password)) {
         return cb(null, result)
         } else {
         return cb(null, false, { message: '비번불일치' });
         }
 }))
+
 // 세션 만들어 줌
 passport.serializeUser((user, done) => {
     process.nextTick(() => {
@@ -202,3 +210,21 @@ app.post('/login', async (요청, 응답, next) => {
     })(요청, 응답, next)
     
 }) 
+// 회원 가입
+app.get('/register', (요청, 응답)=>{
+    응답.render('register.ejs')
+
+})
+
+app.post('/register', async(요청, 응답)=>{
+    // 비밀번호 해싱해줌 
+    let 해시 = await bcrypt.hash(요청.body.password, 10)
+    
+
+    await db.collection('user').insertOne({
+        username : 요청.body.username,
+        password : 해시
+    })
+    // 비밀번호 해싱 알고리즘(보안) - bcrypt
+    응답.redirect('/')
+})

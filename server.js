@@ -11,6 +11,8 @@ app.set('view engine', 'ejs')
 // 요청.body를 쓸수있게해주는 코드
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+ // 여기 코드 밑에있는 모든 API들은 checkLogin 미들웨어함수가 다 적용됨
+    //app.use(checkLogin)
 
 // passport 라이브러리 셋
 const session = require('express-session')
@@ -50,8 +52,19 @@ app.listen(7070, () => {
 })
 
 // get = 유저가 url 주소로 접속하면 거기에 맞는 데이터를 줌 
+function checkLogin(요청, 응답, next) {
+    
+    if(!요청.user) {
+        응답.send('로그인 하세요')
+    }
+    // 다음 코드로 진행해주세요 (사용하지 않으면 무한대기)
+    next()
+}
+   
 
-app.get('/', (요청, 응답) => {
+// 미들웨어 코드 (url, 요청응답 사이에 들어감 함수가)
+app.get('/', checkLogin, (요청, 응답) => {
+   // 함수(요청, 응답)
     응답.sendFile(__dirname + '/index.html')
 }) 
 

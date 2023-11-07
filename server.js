@@ -38,7 +38,8 @@ app.use(passport.session())
 
 const { S3Client } = require('@aws-sdk/client-s3')
 const multer = require('multer')
-const multerS3 = require('multer-s3')
+const multerS3 = require('multer-s3');
+const connectDB = require('./database.js');
 const s3 = new S3Client({
     region : 'ap-northeast-2',
     credentials : {
@@ -57,20 +58,20 @@ const s3 = new S3Client({
     })
 })
 
+let connectDB = require('./database.js') //database.js 파일 경로
 
-let db;
-const url = 'mongodb+srv://whdgjs7300:qwer1234@cluster0.ef3bhk8.mongodb.net/?retryWrites=true&w=majority'
-new MongoClient(url).connect().then((client)=>{
+let db
+connectDB.then((client)=>{
     console.log('DB연결성공')
     db = client.db('forum')
+    app.listen(7070, () => {
+        console.log('http://localhost:7070 에서 서버 실행중')
+    })
     }).catch((err)=>{
     console.log(err)
-})
+    }) 
 
 
-app.listen(7070, () => {
-    console.log('http://localhost:7070 에서 서버 실행중')
-})
 
 // get = 유저가 url 주소로 접속하면 거기에 맞는 데이터를 줌 
 function checkLogin(요청, 응답, next) {
@@ -265,3 +266,6 @@ app.post('/register', async(요청, 응답)=>{
     // 비밀번호 해싱 알고리즘(보안) - bcrypt
     응답.redirect('/')
 })
+
+
+app.use('/shop', require('./routes/shop.js'))

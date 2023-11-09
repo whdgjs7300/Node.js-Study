@@ -269,3 +269,8 @@ app.post('/register', async(요청, 응답)=>{
 
 
 app.use('/shop', require('./routes/shop.js'))
+    // find 함수는 document가 많아질 수록 느려짐
+app.get('/search', async(요청, 응답) => {
+    let result = await db.collection('post').find({title : {$regex :요청.query.val}}).toArray()
+    응답.render('search.ejs',{글목록 : result})
+}) 

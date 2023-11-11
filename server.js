@@ -58,9 +58,10 @@ const s3 = new S3Client({
     })
 })
 
-let connectDB = require('./database.js') //database.js 파일 경로
 
-let db
+
+let db;
+
 connectDB.then((client)=>{
     console.log('DB연결성공')
     db = client.db('forum')
@@ -270,7 +271,23 @@ app.post('/register', async(요청, 응답)=>{
 
 app.use('/shop', require('./routes/shop.js'))
     // find 함수는 document가 많아질 수록 느려짐
+    
 app.get('/search', async(요청, 응답) => {
-    let result = await db.collection('post').find({title : {$regex :요청.query.val}}).toArray()
+    // 몽고 db index로 빠르게 찾기 (전체 도큐먼트를 보는게아니라 해당 도튜먼트 바로 봄)
+    // search index는 aggregate 함수를 써서 데이터를 찾음 (aggregate는 여러 조건을 넣을 수 있음)
+    let 검색조건 = [
+        {$search : {
+            index : 'title_index',
+            text : { query : 요청.query.val , path : 'title' }
+            }},
+            // sort는 원하는 데이터 별 정렬할 수 있음 
+            // limit는 검색결과 데이터 수를 제한할수 있음
+            // skip은 위에서 10개를 스킵하고 나머지 결과를 보여주세요
+            // project는 데이터 필드를 숨길수 있음 _id: 0은 아이디는 숨겨주세요 라는 의미
+            
+        ]
+
+    let result = await db.collection('post').aggregate(검색조건).toArray()
+    console.log('검색결과' , result)
     응답.render('search.ejs',{글목록 : result})
 }) 

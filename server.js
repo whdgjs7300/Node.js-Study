@@ -138,8 +138,11 @@ app.post('/add',upload.single('img1') ,async(요청, 응답) => {
 app.get('/detail/:id', async (요청, 응답)=>{
     // 예외처리를 해야 서버가 안전함
     try {
+        let result2 = await db.collection('comment').find({ parentId :new ObjectId(요청.params.id)}).toArray()
+        
+
         let result = await db.collection('post').findOne({ _id : new ObjectId(요청.params.id)})
-        응답.render('detail.ejs', {result : result})
+        응답.render('detail.ejs', {result : result, result2 : result2})
         console.log(result)
         if(result === null) {
             응답.status(404).send('이상한 url 입력함')
@@ -296,3 +299,14 @@ app.get('/search', async(요청, 응답) => {
     console.log('검색결과' , result)
     응답.render('search.ejs',{글목록 : result})
 }) 
+
+app.post('/comment', async (요청, 응답)=>{
+    let result = await db.collection('comment').insertOne({
+        content : 요청.body.content,
+        writerId : new ObjectId(요청.user?._id),
+        writer : 요청.user?.username,
+        parentId : new ObjectId(요청.body.parentId)
+        })
+    
+        응답.redirect('back')
+    }) 

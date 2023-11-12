@@ -110,16 +110,18 @@ app.get('/write', (요청, 응답) => {
 
 
 app.post('/add',upload.single('img1') ,async(요청, 응답) => {
-    console.log(요청.file)
-    // 유저가 보낸 데이터 확인
-    console.log(요청.body)
+    
     try {
         if(요청.body.title === ""){
             응답.send('제목 입력하세요')
         }else {
             // 유저가 보낸 데이터 DB에 저장
-            await db.collection('post').insertOne({title : 요청.body.title, content: 요청.body.content,
-            img : 요청.file.location
+            await db.collection('post').insertOne({
+                title : 요청.body.title, 
+                content: 요청.body.content,
+                img : 요청.file? 요청.file.location : '',
+                user : 요청.user._id,
+                username : 유저아이디
             })
             // 서버 기능이 끝나면 항상 응답을 해줘야함 !!
             // redirect는 요청이 끝나면 해당 url로 이동시킴
@@ -177,7 +179,10 @@ app.put('/edit', async (요청, 응답)=>{
 
 app.delete('/delete', async (요청, 응답)=>{
     console.log(요청.query);
-    db.collection('post').deleteOne({ _id : new ObjectId(요청.query.docid)})
+    db.collection('post').deleteOne({ 
+        _id : new ObjectId(요청.query.docid),
+        user : new ObjectId(요청.user._id)
+    })
     // ajax를 쓰는 이유 새로고침이 안되고 바로 데이터를 요청, 응답할 수 있기때문에 
     // 응답.render, redierct 같은 거 안씀
     응답.send('삭제완료')

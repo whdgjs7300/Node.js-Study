@@ -310,3 +310,5 @@ app.post('/comment', async (요청, 응답)=>{
     
         응답.redirect('back')
     }) 
+
+    

@@ -310,5 +310,16 @@ app.post('/comment', async (요청, 응답)=>{
     
         응답.redirect('back')
     }) 
+    app.get('/chat/request', async (요청, 응답)=>{
+        await db.collection('chatroom').insertOne({
+            member : [요청.user._id, new ObjectId(요청.query.writerId)],
+            date : new Date()
+            })
+            응답.redirect('채팅방목록페이지')
+        })
 
-    
+
+        app.get('/chat/list', async (요청, 응답)=>{
+            await db.collection('chatroom').find().toArray()
+                응답.render('chatList.ejs')
+            })

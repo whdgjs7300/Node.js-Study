@@ -320,6 +320,15 @@ app.post('/comment', async (요청, 응답)=>{
 
 
         app.get('/chat/list', async (요청, 응답)=>{
-            await db.collection('chatroom').find().toArray()
-                응답.render('chatList.ejs')
-            })
+            let result = await db.collection('chatroom').find({ member : 요청.user._id }).toArray()
+            응답.render('chatList.ejs', {글목록 : result})
+        }) 
+
+        app.get('/chat/detail', async (요청, 응답)=>{
+            응답.render('chatDetail.ejs')
+        }) 
+
+        app.get('/chat/detail/:id', async (요청, 응답)=>{
+            let result = await db.collection('chatroom').findOne({ _id : new ObjectId(요청.params.id)})
+            응답.render('chatDetail.ejs', {result : result})
+        }) 

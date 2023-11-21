@@ -30,5 +30,22 @@
             <button type="submit">댓글작성</button>
         
     </div> 
+
+    <script src="https://cdn.jsdelivr.net/npm/socket.io@4.7.2/client-dist/socket.io.min.js"></script>
+    <script>
+    const socket = io() 
+    // 방이름 , 데이터 
+    socket.emit('ask-join', '1')
+    document.querySelector('.chat-button').addEventListener('click', () =>{
+        socket.emit('message', {msg : '반가워', room : '1'})
+    })
+
+    // 유저가 서버에서 보낸 데이터 받을 때 
+    // 서버 코드랑 똑같음
+    socket.on('데이터이름', (data) => {
+
+    })
+    </script>
+
 </body>
 </html>

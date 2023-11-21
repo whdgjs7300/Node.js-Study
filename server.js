@@ -4,6 +4,12 @@ const { MongoClient, ObjectId } = require('mongodb');
 const methodOverride = require('method-override')
 const bcrypt = require('bcrypt')
 
+// 웹소킷 라이브러리 셋
+const { createServer } = require('http')
+const { Server } = require('socket.io')
+const server = createServer(app)
+const io = new Server(server) 
+
 app.use(methodOverride('_method'))
 // 서버에도 css 파일 등록해야함
 app.use(express.static(__dirname + '/public'));
@@ -65,7 +71,7 @@ let db;
 connectDB.then((client)=>{
     console.log('DB연결성공')
     db = client.db('forum')
-    app.listen(7070, () => {
+    server.listen(7070, () => {
         console.log('http://localhost:7070 에서 서버 실행중')
     })
     }).catch((err)=>{
@@ -332,3 +338,26 @@ app.post('/comment', async (요청, 응답)=>{
             let result = await db.collection('chatroom').findOne({ _id : new ObjectId(요청.params.id)})
             응답.render('chatDetail.ejs', {result : result})
         }) 
+
+
+io.on('connection', (socket) => {
+    console.log('어어어떤')
+    // 프론트가 보낸 데이터 수신하려면 아래코드
+    socket.on('데이터이름', (data)=> {
+         // 서버 -> 모든유저 데이터전송
+    io.emit('데이터이름', data)
+    // 서버 -> 모든유저 데이터전송(모든 유저로 하면 안됨 )- > room 기능 써야함(유저가 들어갈 웹소켓 방)
+    io.emit('데이터이름', '데이터')
+    })
+    // 유저를 룸에 조인 시켜줌
+    //socket.join('룸이름')
+    socket.on('ask-join', (data)=>{
+        socket.join(data)
+    })
+
+    socket.on('message', (data)=>{
+        io.to(data.room).emit('broadcast',data.msg)
+    })
+})
+
+// 웹 소켓 수신 

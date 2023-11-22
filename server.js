@@ -352,12 +352,21 @@ io.on('connection', (socket) => {
     // 유저를 룸에 조인 시켜줌
     //socket.join('룸이름')
     socket.on('ask-join', (data)=>{
+        
         socket.join(data)
     })
 
-    socket.on('message', (data)=>{
-        io.to(data.room).emit('broadcast',data.msg)
+    socket.on('message-send', async(data)=>{
+        await db.collection('chatMessage').insertOne({
+            parentRoom : new ObjectId(data.room),
+            content : data.msg,
+            who : new ObjectId(socket.request.session.passport.user.id)
+        })
+            console.log('유저가 보낸거 : ', data) //{ room : ~~, msg : ~~~ }
+            io.to(data.room).emit('broadcast', data.msg);
     })
 })
 
+
 // 웹 소켓 수신 
+

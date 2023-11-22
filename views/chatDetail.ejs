@@ -35,15 +35,17 @@
     <script>
     const socket = io() 
     // 방이름 , 데이터 
-    socket.emit('ask-join', '1')
+    socket.emit('ask-join', '<%= result._id %>')
+
     document.querySelector('.chat-button').addEventListener('click', () =>{
-        socket.emit('message', {msg : '반가워', room : '1'})
+        let 입력한거 = document.querySelector('.chat-input').value
+        socket.emit('message-send', {msg : 입력한거, room :"<%= result._id %>"})
     })
 
     // 유저가 서버에서 보낸 데이터 받을 때 
     // 서버 코드랑 똑같음
-    socket.on('데이터이름', (data) => {
-
+    socket.on('message-broadcast', (data) => {
+        document.querySelector().insertAdjacentHTML('beforeend', `<div class="chat-box"><span>${data}</span></div>`)
     })
     </script>
 

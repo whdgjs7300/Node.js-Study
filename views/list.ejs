@@ -54,5 +54,11 @@
         
 
     </script>
+
+<script>
+    // sst get 요청
+        let eventSource = new EventSource('/stream/list')  
+        eventSource.addEventListener('msg')
+</script>
 </body>
 </html>

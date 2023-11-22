@@ -355,7 +355,7 @@ io.on('connection', (socket) => {
         
         socket.join(data)
     })
-
+    // 웹 소켓 수신 
     socket.on('message-send', async(data)=>{
         await db.collection('chatMessage').insertOne({
             parentRoom : new ObjectId(data.room),
@@ -367,6 +367,23 @@ io.on('connection', (socket) => {
     })
 })
 
+// sst (실시간 데이터 푸시)
+app.get('/stream/list', (요청, 응답) => {
 
-// 웹 소켓 수신 
+    응답.writeHead(200, {
+        // 서버와 프론트가 연결이 끊기지 않고 유지해줌
+        "Connection": "keep-alive",
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        });
+        setInterval(()=>{
+            // 스페이스바 형식도 지켜야함 아래 코드 그대로
+        응답.write('event: msg\n');
+        응답.write('data: 바보\n\n');
+        }, 1000)
+
+        
+    
+    });
+
 

@@ -68,12 +68,19 @@ const s3 = new S3Client({
 
 let db;
 
+let changeStream
+
 connectDB.then((client)=>{
     console.log('DB연결성공')
     db = client.db('forum')
-    server.listen(7070, () => {
-        console.log('http://localhost:7070 에서 서버 실행중')
+    server.listen(process.env.PORT, () => {
+        console.log('http://localhost:8080 에서 서버 실행중')
     })
+
+    changeStream = db.collection('post').watch([
+        { $match: { operationType: 'insert' } }
+    ])
+
     }).catch((err)=>{
     console.log(err)
     }) 
@@ -381,9 +388,13 @@ app.get('/stream/list', (요청, 응답) => {
         응답.write('event: msg\n');
         응답.write('data: 바보\n\n');
         }, 1000)
-
+        // change stream 실시간 변동 데이터 알림
         
-    
+        changeStream.on('change', (result) => {
+            console.log('DB변동생김')
+            응답.write('event: msg\n')
+            응답.write(`data: ${JSON.stringify(result.fullDocument)}\n\n`)
+        })
     });
 
 

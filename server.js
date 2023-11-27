@@ -398,3 +398,21 @@ app.get('/stream/list', (요청, 응답) => {
     });
 
 
+
+    //document 어떻게 생겼는지 정의
+    // Mongoose 라이브러리 DB에 저장하는 법
+const Blog = mongoose.model('Blog', new Schema({
+    title: String,
+    content: String
+    }))
+    
+    const article = new Blog({
+        title: '안녕하쇼',
+        content: '글내용임',
+    })
+    
+    article.save() 
+
+    /** @type { { title : string, content : string } }  */
+let result = await db.collection('post').findOne({_id : 1})
+
